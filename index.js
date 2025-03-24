@@ -4,7 +4,7 @@ const puppeteer = require("puppeteer");
   const browser = await puppeteer.launch({});
   const page = await browser.newPage();
 
-  await page.goto("");
+  await page.goto("https://mercado.carrefour.com.br/");
 
   await browser.close();
 })();
