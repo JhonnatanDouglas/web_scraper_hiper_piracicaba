@@ -1,0 +1,23 @@
+{
+  "name": "desafio_web_scraper_hiper_piracicaba",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JhonnatanDouglas/web_scraper_hiper_piracicaba.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JhonnatanDouglas/web_scraper_hiper_piracicaba/issues"
+  },
+  "homepage": "https://github.com/JhonnatanDouglas/web_scraper_hiper_piracicaba#readme",
+  "description": "",
+  "dependencies": {
+    "puppeteer": "^24.4.0"
+  }
+}
