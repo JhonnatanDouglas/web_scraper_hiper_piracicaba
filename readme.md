@@ -58,7 +58,7 @@ O scraper faz múltiplas requisições para garantir que **todos os produtos** s
     - Depois entre na pasta:
 
       ```sh
-      cd pasta-do-web-scraper
+      cd web_scraper_hiper_piracicaba
       ```
 
 2.  Instale as dependências:
