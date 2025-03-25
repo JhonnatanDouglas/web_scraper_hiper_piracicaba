@@ -1,85 +1,108 @@
 const puppeteer = require("puppeteer");
 const fs = require("fs");
 
-(async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    defaultViewport: null,
-  });
+const formatDiscount = (product) => {
+  const originalPrice = product.sellers[0].commertialOffer.ListPrice || 0;
+  const currentPrice = product.sellers[0].commertialOffer.Price || 0;
 
-  const page = await browser.newPage();
-  await page.goto(
-    "https://mercado.carrefour.com.br/bebidas#crfint=hm|header-menu-corredores|bebidas|4",
-    { waitUntil: "domcontentloaded", timeout: 60000 }
-  );
+  const discount = ((originalPrice - currentPrice) / originalPrice) * 100;
+  const discountPercentage =
+    originalPrice > currentPrice ? Math.round(discount) : 0;
 
-  // Wait for all necessary selectors to load on the page
-  await page.waitForSelector('a[data-testid="product-link"]');
-  await page.waitForSelector('span[data-test-id="price"]');
-  await page.waitForSelector('div[data-test="discount-badge"]');
-  await page.waitForSelector(
-    'div[data-testid="store-product-card-image"] > img'
-  );
-  await page.waitForSelector("article > p");
+  return { originalPrice, currentPrice, discountPercentage };
+};
 
-  // Extract product information
-  const productsToJson = await page.evaluate(() => {
-    const drinksList = [];
+const allProductsList = [];
 
-    // Get the necessary elements from the DOM
-    const titlesElements = document.querySelectorAll(
-      'a[data-testid="product-link"]'
-    );
-    const pricesElements = document.querySelectorAll(
-      'span[data-test-id="price"]'
-    );
-    const discountElements = document.querySelectorAll(
-      'div[data-test="discount-badge"]'
-    );
-    const images = document.querySelectorAll(
-      'div[data-testid="store-product-card-image"] > img'
-    );
-    const sponsoredElements = document.querySelectorAll("article > p");
+const scrapHandle = (data) => {
+  const productsList = data.data.search.products.edges;
 
-    titlesElements.forEach((title, i) => {
-      // Get elements for each product
-      const priceElement = pricesElements[i] || null;
-      const imageElement = images[i] || null;
-      const discountElement = discountElements[i]
-        ? discountElements[i].querySelector("div > span")
-        : null;
-      const sponsoredText = sponsoredElements[i]
-        ? sponsoredElements[i].textContent.trim()
-        : null;
+  productsList.forEach((edge) => {
+    const product = edge.node;
 
-      // Extract and format product details
-      const productTitle = title ? title.textContent.trim() : "Title not found";
-      const productPrice = priceElement
-        ? priceElement.getAttribute("data-value").trim()
-        : "Price unavailable";
-      const productDiscount = discountElement
-        ? discountElement.textContent.replace("-", "").replace("%", "").trim()
-        : "0";
-      const productUrl = title ? title.getAttribute("href").trim() : "#";
-      const imageUrl = imageElement ? imageElement.src : "Image unavailable";
-      const isSponsored = sponsoredText && sponsoredText === "Patrocinado";
+    const { originalPrice, currentPrice, discountPercentage } =
+      formatDiscount(product);
 
-      // Add product data to the drinksList
-      drinksList.push({
-        productTitle,
-        productPrice,
-        productDiscount,
-        productUrl,
-        imageUrl,
-        isSponsored,
-      });
+    const stockQuantity =
+      product.sellers[0].commertialOffer.AvailableQuantity || 0;
+
+    allProductsList.push({
+      id: product.id,
+      name: product.name,
+      properties: product.properties,
+      brandName: product.brand.name,
+      unitType: product.measurementUnit,
+      gtinCode: product.gtin,
+      slug: product.slug,
+      imageUrls: product.image,
+      originalPrice: originalPrice,
+      discountedPrice: currentPrice,
+      discountPercentage: discountPercentage,
+      stockQuantity: stockQuantity,
     });
-
-    return drinksList;
   });
+};
 
-  // Write the list of products to a JSON file
-  fs.writeFileSync("output.json", JSON.stringify(productsToJson, null, 2));
+const fetchingAllProductsPagination = async (browser) => {
+  let after = 0;
+  const limit = 60;
 
-  await browser.close();
+  while (true) {
+    const apiUrl = `https://mercado.carrefour.com.br/api/graphql?operationName=ProductsQuery&variables=%7B%22isPharmacy%22%3Afalse%2C%22first%22%3A${limit}%2C%22after%22%3A%22${after}%22%2C%22sort%22%3A%22score_desc%22%2C%22term%22%3A%22%22%2C%22selectedFacets%22%3A%5B%7B%22key%22%3A%22category-1%22%2C%22value%22%3A%22bebidas%22%7D%5D%7D`;
+
+    try {
+      const cookies = await browser.cookies();
+      const cookiesToString = cookies
+        .map((cookie) => `${cookie.name}=${cookie.value}`)
+        .join("; ");
+
+      const res = await fetch(apiUrl, {
+        headers: {
+          Cookie: cookiesToString,
+        },
+      });
+      const data = await res.json();
+
+      if (!data?.data?.search?.products?.edges?.length) break;
+
+      const products = data.data.search.products.edges;
+
+      if (products.length === 0) break;
+
+      console.log(
+        `🔍 Searching page ${after / limit + 1} | 📦 Products returned: ${
+          products.length
+        }`
+      );
+
+      scrapHandle(data);
+      after += limit;
+    } catch (error) {
+      console.error("❌ Error: pulling products pagination! ", error);
+      break;
+    }
+  }
+};
+
+(async () => {
+  let browser;
+
+  try {
+    browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(
+      "https://mercado.carrefour.com.br/bebidas#crfint=hm|header-menu-corredores|bebidas|4"
+    );
+
+    await fetchingAllProductsPagination(browser);
+
+    fs.writeFileSync("output.json", JSON.stringify(allProductsList, null, 2));
+    console.log(
+      `\n📦 Total products collected: ${allProductsList.length}, saved in output.json!`
+    );
+  } catch (error) {
+    console.error("❌ Error: running web scraper! ", error);
+  } finally {
+    if (browser) await browser.close();
+  }
 })();
