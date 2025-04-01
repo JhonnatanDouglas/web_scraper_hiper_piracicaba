@@ -1,82 +1,82 @@
 # 🏆 Web Scraper - Carrefour (Hiper Piracicaba)
 
-Este projeto é um **web scraper** desenvolvido em **Node.js** usando **Puppeteer** para coletar dados da seção de bebidas do `Carrefour`, loja `Hiper Piracicaba`.
+This project is a **web scraper** developed in **Node.js** using **Puppeteer** to collect data from the drinks section of `Carrefour`, `Hiper Piracicaba` store.
 
-## 🚀 Tecnologias utilizadas
+## 🚀 Technologies used
 
 - **Node.js**
 - **Puppeteer**
 - **Fetch API**
 
-## 📌 Descrição
+## 📌 Description
 
-O script **navega até a página de bebidas do Carrefour** e extrai informações relevantes, como:
+The script **navigates to the drinks page of Carrefour** and extracts relevant information such as:
 
-✅ ID do produto  
-✅ Nome do produto  
-✅ Propriedades do produto  
-✅ Marca do produto  
-✅ Tipo de unidade de medida  
-✅ Código GTIN  
-✅ Slug do produto  
-✅ URLs das imagens  
-✅ Preço original  
-✅ Preço com desconto  
-✅ Porcentagem do desconto  
-✅ Quantidade em estoque
+✅ Product ID  
+✅ Product name  
+✅ Product properties  
+✅ Product brand  
+✅ Unit of measurement type  
+✅ GTIN code  
+✅ Product slug  
+✅ Image URLs  
+✅ Original price  
+✅ Discounted price  
+✅ Discount percentage  
+✅ Stock quantity
 
-**Os dados coletados são salvos em um arquivo `output.json`.**
+**The collected data is saved in a `output.json` file.**
 
-## 🛠️ Estratégia de Scraping
+## 🛠️ Scraping Strategy
 
-1. O script acessa a página da categoria **bebidas** do Carrefour.
-2. Usa a API GraphQL do Carrefour para obter os produtos paginados.
-3. Extraí os dados relevantes de cada produto.
-4. Salva os resultados em um arquivo JSON.
+1. The script accesses the Carrefour **drinks** category page.
+2. It uses Carrefour's GraphQL API to get the paginated products.
+3. It extracts relevant data for each product.
+4. It saves the results to a JSON file.
 
-O scraper faz múltiplas requisições para garantir que **todos os produtos** sejam coletados, iterando pelas páginas de resultados até que **não haja mais produtos disponíveis**.
+The scraper makes multiple requests to ensure **all products** are collected, iterating through the result pages until **no more products are available**.
 
-## 📂 Estrutura do projeto
+## 📂 Project structure
 
 ```
-📦 projeto-web-scraper
- ├── 📜 index.js        # Script principal que executa o scraper
- ├── 📜 output.json     # Arquivo JSON contendo os dados coletados
- ├── 📜 package.json    # Dependências do projeto
- ├── 📜 .gitignore      # Arquivos ignorados no Git
- └── 📜 README.md       # Documentação do projeto
+📦 web-scraper-project
+ ├── 📜 index.js        # Main script that runs the scraper
+ ├── 📜 output.json     # JSON file containing the collected data
+ ├── 📜 package.json    # Project dependencies
+ ├── 📜 .gitignore      # Files ignored by Git
+ └── 📜 README.md       # Project documentation
 ```
 
-## ⚙️ Como executar
+## ⚙️ How to run
 
-1.  Clone este repositório:
+1.  Clone this repository:
 
     ```sh
     git clone https://github.com/JhonnatanDouglas/web_scraper_hiper_piracicaba.git
     ```
 
-    - Depois entre na pasta:
+    - Then navigate to the folder:
 
       ```sh
       cd web_scraper_hiper_piracicaba
       ```
 
-2.  Instale as dependências:
+2.  Install the dependencies:
     ```sh
     npm i
     ```
-3.  Execute o script:
+3.  Run the script:
     ```sh
     node index.js
     ```
-4.  O resultado será salvo no arquivo `output.json`.
+4.  The result will be saved in the `output.json` file.
 
-## 📌 Observações
+## 📌 Notes
 
-- O scraper utiliza **cookies da sessão** para garantir acesso aos dados corretamente.
-- O processo pode demorar alguns minutos, dependendo da quantidade de produtos disponíveis.
-- Caso ocorra algum erro durante a extração, o script exibirá mensagens de erro detalhadas no console.
+- The scraper uses **session cookies** to ensure correct access to the data.
+- The process may take a few minutes, depending on the number of available products.
+- If an error occurs during extraction, the script will display detailed error messages in the console.
 
 ---
 
-Resolvido e feito atenciosamente por [Jhonnatan Douglas](https://github.com/JhonnatanDouglas) 🚀
+Resolved and made with care by [Jhonnatan Douglas](https://github.com/JhonnatanDouglas) 🚀
